@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Discord;
@@ -14,10 +15,12 @@ namespace Simpbot.Core.Modules
     public class Guild : ModuleBase
     {
         private readonly StorageContext _guildContext;
+        private readonly ICustomLogger _customLogger;
 
-        public Guild(StorageContext guildContext)
+        public Guild(StorageContext guildContext, ICustomLogger customLogger)
         {
             _guildContext = guildContext;
+            _customLogger = customLogger;
         }
 
         [Command("mute", RunMode = RunMode.Async)]
@@ -47,6 +50,32 @@ namespace Simpbot.Core.Modules
 
             muted.IsMuted = false;
             await _guildContext.SaveChangesAsync();
+        }
+
+        [Command("kick", RunMode = RunMode.Async)]
+        public async Task KickAsync(IUser user)
+        {
+            var usr = await Context.Guild.GetUserAsync(user.Id);
+            await usr.KickAsync();
+        }
+
+        [Command("prune", RunMode = RunMode.Async)]
+        public async Task PruneAsync(IUser user, int howMany)
+        {
+            try
+            {
+                var channel = Context.Channel as ITextChannel;
+                var messages =
+                    (await channel.GetMessagesAsync(howMany).FlattenAsync())
+                    .Where(message => message.Author.Id.Equals(user.Id));
+                await channel.DeleteMessagesAsync(messages);
+            }
+            catch (Exception e)
+            {
+                await _customLogger.LogAsync(e);
+                throw;
+            }
+
         }
     }
 }

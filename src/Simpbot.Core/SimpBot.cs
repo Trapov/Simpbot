@@ -53,7 +53,7 @@ namespace Simpbot.Core
 #endif
             _discordClient.Log += _serviceProvider
                 .GetRequiredService<ICustomLogger>()
-                .Log;
+                .LogAsync;
         }
 
         #region Implementation of ISimpbot

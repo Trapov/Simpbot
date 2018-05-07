@@ -38,7 +38,7 @@ namespace Simpbot.Core.Modules
             }
             catch (Exception e)
             {
-                await _customLogger.Log(e);
+                await _customLogger.LogAsync(e);
                 await ReplyAsync("Unhandled error").ConfigureAwait(false);
             }
 
@@ -62,7 +62,7 @@ namespace Simpbot.Core.Modules
             }
             catch (Exception e)
             {
-                await _customLogger.Log(e);
+                await _customLogger.LogAsync(e);
                 await ReplyAsync("Unhandled error").ConfigureAwait(false);
             }
         }
@@ -86,7 +86,7 @@ namespace Simpbot.Core.Modules
             }
             catch (Exception e)
             {
-                await _customLogger.Log(e);
+                await _customLogger.LogAsync(e);
                 await ReplyAsync("Unhandled error").ConfigureAwait(false);
             }
 
@@ -107,7 +107,7 @@ namespace Simpbot.Core.Modules
             }
             catch (Exception e)
             {
-                await _customLogger.Log(e);
+                await _customLogger.LogAsync(e);
                 await ReplyAsync("Unhandled error").ConfigureAwait(false);
             }
         }
