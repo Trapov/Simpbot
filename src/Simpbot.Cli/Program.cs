@@ -5,21 +5,25 @@ using Simpbot.Service.Weather;
 
 namespace Simpbot.Cli
 {
-    public class Program
+    public static class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
-            var bot = new Core.Simpbot(TestConfiguration.BotToken, new WeatherServiceConfiguration
+            var configWeather = new WeatherServiceConfiguration
             {
                 ApiKey = TestConfiguration.WeatherServiceKey
-            }, new SearchServiceConfiguration
+            };
+            var configSearch = new SearchServiceConfiguration
             {
-                ApiKey = TestConfiguration.ImageServiceKey, CxKey = TestConfiguration.ImageServiceCustomEngineKey
-            });
+                ApiKey = TestConfiguration.ImageServiceKey,
+                CxKey = TestConfiguration.ImageServiceCustomEngineKey
+            };
 
-            bot.StartAsync();
-
-            Task.Delay(-1).Wait();
+            using (var bot = new Core.Simpbot(TestConfiguration.BotToken, configWeather, configSearch))
+            {
+                bot.StartAsync();
+                Task.Delay(-1).Wait();
+            }
         }
     }
 }

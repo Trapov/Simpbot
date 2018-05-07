@@ -15,14 +15,13 @@ using Simpbot.Core.Contracts;
 using Simpbot.Core.Dto;
 using Simpbot.Core.Persistence;
 using Simpbot.Core.Persistence.Entity;
-using Simpbot.Core.Persistence.Seed;
 using Simpbot.Service.Search;
 using Simpbot.Service.Weather;
 using Simpbot.Service.Wikipedia;
 
 namespace Simpbot.Core
 {
-    public class Simpbot : ISimpbot
+    public class Simpbot : ISimpbot, IDisposable
     {
         private readonly string _token;
         private readonly DiscordSocketClient _discordClient;
@@ -35,7 +34,7 @@ namespace Simpbot.Core
 
             _commandService = new CommandService();
 
-            var services = new ServiceCollection()
+            _serviceProvider = new ServiceCollection()
                 .AddSingleton(provider => weatherServiceConfiguration)
                 .AddSingleton(provider => imageSearchServiceConfiguration)
                 .AddSingleton(provider => _commandService)
@@ -43,11 +42,8 @@ namespace Simpbot.Core
                 .AddScoped<IWikipediaService, WikipediaService>()
                 .AddScoped<ISearchService, SearchService>()
                 .AddScoped<ICustomLogger, CustomLogger>()
-                .AddDbContext<PrefixContext>(ServiceLifetime.Transient);
-
-            _serviceProvider = services.BuildServiceProvider();
-
-            PrefixSeed.Initialize(_serviceProvider);
+                .AddDbContext<StorageContext>(ServiceLifetime.Transient)
+                .BuildServiceProvider();
 
 #if WINDOWS7
             _discordClient =
@@ -69,6 +65,9 @@ namespace Simpbot.Core
 
         public async Task StartAsync()
         {
+            //TODO: combine two
+            await _serviceProvider.GetService<StorageContext>().MigrateAsync();
+
             _discordClient.MessageReceived += HandleCommand;
 
             await _discordClient.LoginAsync(TokenType.Bot, _token);
@@ -100,7 +99,7 @@ namespace Simpbot.Core
             // Create a number to track where the prefix ends and the command begins
             var argPos = 0;
 
-            using (var prefixContext = _serviceProvider.GetService<PrefixContext>())
+            using (var prefixContext = _serviceProvider.GetService<StorageContext>())
             {
                 var guildId = (message.Channel as IGuildChannel)?.Guild.Id;
 
@@ -136,5 +135,10 @@ namespace Simpbot.Core
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            _discordClient?.Dispose();
+        }
     }
 }
