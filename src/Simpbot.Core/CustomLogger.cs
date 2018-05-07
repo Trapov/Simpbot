@@ -7,7 +7,7 @@ namespace Simpbot.Core
 {
     public class CustomLogger : ICustomLogger
     {
-        public Task Log(LogMessage msg)
+        public Task LogAsync(LogMessage msg)
         {
             switch (msg.Severity)
             {
@@ -36,7 +36,7 @@ namespace Simpbot.Core
             return Task.CompletedTask;
         }
 
-        public Task Log(Exception logMessage)
+        public Task LogAsync(Exception logMessage)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(logMessage);
@@ -46,7 +46,7 @@ namespace Simpbot.Core
 
     public interface ICustomLogger
     {
-        Task Log(LogMessage logMessage);
-        Task Log(Exception logMessage);
+        Task LogAsync(LogMessage logMessage);
+        Task LogAsync(Exception logMessage);
     }
 }
