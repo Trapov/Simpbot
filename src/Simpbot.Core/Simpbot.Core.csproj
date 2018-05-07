@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Configurations>Debug;Release;Windows7;Windows7RELEASE</Configurations>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows7|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;WINDOWS7;NETSTANDARD2_0;</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Windows7RELEASE|AnyCPU'">
+    <DefineConstants>RELEASE;WINDOWS7;NETSTANDARD2_0;</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
+    <PackageReference Include="Discord.Net.Providers.WS4Net" Version="2.0.0-beta" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Simpbot.Service.Search\Simpbot.Service.Search.csproj" />
+    <ProjectReference Include="..\Simpbot.Service.Weather\Simpbot.Service.Weather.csproj" />
+    <ProjectReference Include="..\Simpbot.Service.Wikipedia\Simpbot.Service.Wikipedia.csproj">
+      <Project>{2FDC576F-F0AD-49F9-AF95-841667E78E15}</Project>
+      <Name>Simpbot.Service.Wikipedia</Name>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>
