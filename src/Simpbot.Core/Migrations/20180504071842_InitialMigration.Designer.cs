@@ -9,7 +9,7 @@ using System;
 
 namespace Simpbot.Core.Migrations
 {
-    [DbContext(typeof(PrefixContext))]
+    [DbContext(typeof(StorageContext))]
     [Migration("20180504071842_InitialMigration")]
     partial class InitialMigration
     {

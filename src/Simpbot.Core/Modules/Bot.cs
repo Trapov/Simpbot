@@ -17,10 +17,10 @@ namespace Simpbot.Core.Modules
     public class Bot : ModuleBase
     {
         private readonly CommandService _commandService;
-        private readonly PrefixContext _prefixContext;
+        private readonly StorageContext _prefixContext;
         private readonly ICustomLogger _customLogger;
 
-        public Bot(CommandService commandService, PrefixContext prefixContext, ICustomLogger customLogger)
+        public Bot(CommandService commandService, StorageContext prefixContext, ICustomLogger customLogger)
         {
             _commandService = commandService;
             _prefixContext = prefixContext;
