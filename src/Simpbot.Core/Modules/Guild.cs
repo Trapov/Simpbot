@@ -53,6 +53,7 @@ namespace Simpbot.Core.Modules
         }
 
         [Command("kick", RunMode = RunMode.Async)]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task KickAsync(IUser user)
         {
             var usr = await Context.Guild.GetUserAsync(user.Id);
