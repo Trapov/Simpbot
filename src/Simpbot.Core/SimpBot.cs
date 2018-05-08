@@ -1,16 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.Net.Providers.WS4Net;
 using Discord.WebSocket;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
 using Simpbot.Core.Contracts;
 using Simpbot.Core.Dto;
 using Simpbot.Core.Persistence;
@@ -18,6 +11,10 @@ using Simpbot.Core.Persistence.Entity;
 using Simpbot.Service.Search;
 using Simpbot.Service.Weather;
 using Simpbot.Service.Wikipedia;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Simpbot.Core
 {
@@ -98,14 +95,21 @@ namespace Simpbot.Core
 
             // Create a number to track where the prefix ends and the command begins
             var argPos = 0;
-
-            using (var prefixContext = _serviceProvider.GetService<StorageContext>())
+            using (var storageContext = _serviceProvider.GetService<StorageContext>())
             {
+                // MUTED FEATURE
+                if (messageParam.Channel is ITextChannel channel &&
+                    storageContext.Muteds.Any(muted => muted.UserId.Equals(messageParam.Author.Id) && muted.IsMuted))
+                {
+                    await channel.DeleteMessagesAsync(new[] { messageParam.Id });
+                    return;
+                }
+
                 var guildId = (message.Channel as IGuildChannel)?.Guild.Id;
 
                 var foundPrefix = guildId != null
-                    ? (IPrefix) await prefixContext.Prefixes.FirstOrDefaultAsync(prefix => prefix.GuildId.Equals(guildId)) ?? await prefixContext.GetDefaultPrefix()
-                    : await prefixContext.GetDefaultPrefix();
+                    ? (IPrefix) await storageContext.Prefixes.FirstOrDefaultAsync(prefix => prefix.GuildId.Equals(guildId)) ?? await storageContext.GetDefaultPrefix()
+                    : await storageContext.GetDefaultPrefix();
 
                 if (
                     !(message.HasCharPrefix(foundPrefix.PrefixSymbol, ref argPos) ||
