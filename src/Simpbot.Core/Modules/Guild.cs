@@ -63,6 +63,7 @@ namespace Simpbot.Core.Modules
         [Priority(0)]
         public async Task PruneAsync(IUser user, int howMany)
         {
+            howMany = howMany == 1 && user.Id.Equals(Context.User.Id) ? 2 : howMany;
             try
             {
                 if (Context.Channel is ITextChannel channel)
@@ -85,6 +86,7 @@ namespace Simpbot.Core.Modules
         [Priority(1)]
         public async Task PruneAsync(int howMany)
         {
+            howMany = howMany == 1 ? 2 : howMany;
             try
             {
                 if (Context.Channel is ITextChannel channel)

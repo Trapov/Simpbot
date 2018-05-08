@@ -1,7 +1,10 @@
 ﻿using System.Threading.Tasks;
 
+using Simpbot.Core.Dto;
 using Simpbot.Service.Search;
 using Simpbot.Service.Weather;
+
+using BotClient =  Simpbot.Core.Simpbot;
 
 namespace Simpbot.Cli
 {
@@ -9,21 +12,21 @@ namespace Simpbot.Cli
     {
         public static void Main()
         {
-            var configWeather = new WeatherServiceConfiguration
-            {
-                ApiKey = TestConfiguration.WeatherServiceKey
-            };
-            var configSearch = new SearchServiceConfiguration
-            {
-                ApiKey = TestConfiguration.ImageServiceKey,
-                CxKey = TestConfiguration.ImageServiceCustomEngineKey
-            };
-
-            using (var bot = new Core.Simpbot(TestConfiguration.BotToken, configWeather, configSearch))
-            {
-                bot.StartAsync();
-                Task.Delay(-1).Wait();
-            }
+            using (var bot = new BotClient(configuration => BuildConfiguration())) bot.StartAsync().ContinueWith(task => Task.Delay(-1).Wait()).Wait();
         }
+
+        private static SimpbotConfiguration BuildConfiguration() => new SimpbotConfiguration
+        {
+            Token = BotConfiguration.BotToken,
+            WeatherServiceConfiguration = new WeatherServiceConfiguration
+            {
+                ApiKey = BotConfiguration.WeatherServiceKey
+            },
+            SearchServiceConfiguration = new SearchServiceConfiguration
+            {
+                ApiKey = BotConfiguration.ImageServiceKey,
+                CxKey = BotConfiguration.ImageServiceCustomEngineKey
+            }
+        };
     }
 }
