@@ -60,15 +60,39 @@ namespace Simpbot.Core.Modules
         }
 
         [Command("prune", RunMode = RunMode.Async)]
+        [Priority(0)]
         public async Task PruneAsync(IUser user, int howMany)
         {
             try
             {
-                var channel = Context.Channel as ITextChannel;
-                var messages =
-                    (await channel.GetMessagesAsync(howMany).FlattenAsync())
-                    .Where(message => message.Author.Id.Equals(user.Id));
-                await channel.DeleteMessagesAsync(messages);
+                if (Context.Channel is ITextChannel channel)
+                {
+                    var messages =
+                        (await channel.GetMessagesAsync(howMany).FlattenAsync())
+                        .Where(message => message.Author.Id.Equals(user.Id));
+                    await channel.DeleteMessagesAsync(messages);
+                }
+            }
+            catch (Exception e)
+            {
+                await _customLogger.LogAsync(e);
+                throw;
+            }
+
+        }
+
+        [Command("prune", RunMode = RunMode.Async)]
+        [Priority(1)]
+        public async Task PruneAsync(int howMany)
+        {
+            try
+            {
+                if (Context.Channel is ITextChannel channel)
+                {
+                    var messages =
+                        await channel.GetMessagesAsync(howMany).FlattenAsync();
+                    await channel.DeleteMessagesAsync(messages);
+                }
             }
             catch (Exception e)
             {
