@@ -113,13 +113,15 @@ namespace Simpbot.Core
 
                 var guildId = (message.Channel as IGuildChannel)?.Guild.Id;
 
-                var foundPrefix = guildId != null
-                    ? (IPrefix) await storageContext.Prefixes.FirstOrDefaultAsync(prefix => prefix.GuildId.Equals(guildId)) ?? await storageContext.GetDefaultPrefix()
-                    : await storageContext.GetDefaultPrefix();
+                if (guildId == null) return;
+
+                var foundPrefix =
+                    (await storageContext.Prefixes.FirstOrDefaultAsync(prefix => prefix.GuildId.Equals(guildId)))?.PrefixSymbol ??
+                    Prefix.GetDefaultSymbol();
 
                 if (
-                    !(message.HasCharPrefix(foundPrefix.PrefixSymbol, ref argPos) ||
-                        message.HasMentionPrefix(_discordClient.CurrentUser, ref argPos))
+                    !(message.HasCharPrefix(foundPrefix, ref argPos) ||
+                      message.HasMentionPrefix(_discordClient.CurrentUser, ref argPos))
                 ) return;
 
                 // Create a Command Context

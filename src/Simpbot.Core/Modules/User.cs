@@ -46,7 +46,7 @@ namespace Simpbot.Core.Modules
                 .AddField("Name:", user.Username)
                 .AddField("Joined Discord:", user.CreatedAt.ToString("f", CultureInfo.InvariantCulture))
                 .AddField("Current status:", user.Status)
-                .AddField("Playing:", user.Activity.Name)
+                .AddField("Playing:", user.Activity?.Name ?? "Nothing")
                 .Build();
 
             return ReplyAsync(Context.User.Mention, false, embed);
