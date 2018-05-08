@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Simpbot.Cli
 {
-    public static class TestConfiguration
+    public static class BotConfiguration
     {
         public static string BotToken { get; }
         public static ulong TestGuild { get; }
@@ -10,7 +10,7 @@ namespace Simpbot.Cli
         public static string ImageServiceKey { get; }
         public static string ImageServiceCustomEngineKey { get; }
 
-        static TestConfiguration()
+        static BotConfiguration()
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("secret.secrets.json")

@@ -1,12 +1,9 @@
 using System.Linq;
-using NUnit.Framework;
-
-using Simpbot.Service.Search;
-
 using System.Threading.Tasks;
 
+using NUnit.Framework;
 
-namespace Simpbot.Service.ImageSearch.Test
+namespace Simpbot.Service.Search.Test
 {
     public class FetchImageSearchApiTest
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Simpbot.Service.ImageSearch.Test
+namespace Simpbot.Service.Search.Test
 {
     public static class TestConfiguration
     {

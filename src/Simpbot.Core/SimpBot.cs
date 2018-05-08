@@ -2,8 +2,10 @@
 using Discord.Commands;
 using Discord.Net.Providers.WS4Net;
 using Discord.WebSocket;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using Simpbot.Core.Contracts;
 using Simpbot.Core.Dto;
 using Simpbot.Core.Persistence;
@@ -11,6 +13,7 @@ using Simpbot.Core.Persistence.Entity;
 using Simpbot.Service.Search;
 using Simpbot.Service.Weather;
 using Simpbot.Service.Wikipedia;
+
 using System;
 using System.Linq;
 using System.Reflection;
@@ -25,15 +28,17 @@ namespace Simpbot.Core
         private readonly CommandService _commandService;
         private readonly IServiceProvider _serviceProvider;
 
-        public Simpbot(string token, WeatherServiceConfiguration weatherServiceConfiguration, SearchServiceConfiguration imageSearchServiceConfiguration)
+        public Simpbot(Func<SimpbotConfiguration, SimpbotConfiguration> configuration)
         {
-            _token = token;
+            var cnf = configuration.Invoke(new SimpbotConfiguration());
+
+            _token = cnf.Token;
 
             _commandService = new CommandService();
 
             _serviceProvider = new ServiceCollection()
-                .AddSingleton(provider => weatherServiceConfiguration)
-                .AddSingleton(provider => imageSearchServiceConfiguration)
+                .AddSingleton(provider => cnf.WeatherServiceConfiguration)
+                .AddSingleton(provider => cnf.SearchServiceConfiguration)
                 .AddSingleton(provider => _commandService)
                 .AddScoped<IWeatherService, WeatherService>()
                 .AddScoped<IWikipediaService, WikipediaService>()
@@ -62,13 +67,14 @@ namespace Simpbot.Core
 
         public async Task StartAsync()
         {
-            //TODO: combine two
+            // migrate
             await _serviceProvider.GetService<StorageContext>().MigrateAsync();
+
+            await _discordClient.LoginAsync(TokenType.Bot, _token);
+            await _commandService.AddModulesAsync(Assembly.GetExecutingAssembly());
 
             _discordClient.MessageReceived += HandleCommand;
 
-            await _discordClient.LoginAsync(TokenType.Bot, _token);
-            var result = await _commandService.AddModulesAsync(Assembly.GetExecutingAssembly());
 
             await _discordClient.StartAsync();
         }

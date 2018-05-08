@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Simpbot.Core.Dto;
-using Simpbot.Service.Search;
-using Simpbot.Service.Weather;
 
 namespace Simpbot.Core.Test
 {
@@ -27,7 +25,12 @@ namespace Simpbot.Core.Test
 
         private static async Task<Simpbot> CreateBotAndStartAsync()
         {
-            var client = new Simpbot(TestConfiguration.BotToken, new WeatherServiceConfiguration(), new SearchServiceConfiguration());
+
+            var client = new Simpbot(configuration =>
+            {
+                configuration.Token = TestConfiguration.BotToken;
+                return configuration;
+            });
             await client.StartAsync();
 
             return client;
