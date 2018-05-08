@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using Discord;
@@ -16,8 +17,8 @@ namespace Simpbot.Core.Modules
             _customLogger = customLogger;
         }
 
-        [Command("avatar", RunMode = RunMode.Async), Summary("gives avatar of a user")]
-        public async Task Avatar(IUser user)
+        [Command("avatar"), Summary("gives an avatar of a user")]
+        public Task Avatar(IUser user)
         {
             try
             {
@@ -27,13 +28,28 @@ namespace Simpbot.Core.Modules
                     .WithColor(Color.Blue)
                     .Build();
 
-                await ReplyAsync(Context.User.Mention, false, embed).ConfigureAwait(false);
+                return ReplyAsync(Context.User.Mention, false, embed);
             }
             catch (Exception e)
             {
-                await _customLogger.LogAsync(e);
-                await ReplyAsync("Unhandled error").ConfigureAwait(false);
+                _customLogger.LogAsync(e).Wait();
+                return ReplyAsync("Unhandled error");
             }
+        }
+
+        [Command("info", RunMode = RunMode.Async), Summary("Gives a user info")]
+        public Task GetUserInfoAsync(IUser user)
+        {
+            var embed = new EmbedBuilder()
+                .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Png))
+                .WithColor(Color.DarkMagenta)
+                .AddField("Name:", user.Username)
+                .AddField("Joined Discord:", user.CreatedAt.ToString("f", CultureInfo.InvariantCulture))
+                .AddField("Current status:", user.Status)
+                .AddField("Playing:", user.Activity.Name)
+                .Build();
+
+            return ReplyAsync(Context.User.Mention, false, embed);
         }
     }
 }
