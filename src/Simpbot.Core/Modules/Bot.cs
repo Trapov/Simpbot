@@ -28,12 +28,12 @@ namespace Simpbot.Core.Modules
         }
 
         [Command("info", RunMode = RunMode.Async), Summary("info about the bot")]
-        public async Task Info()
+        public async Task InfoAsync()
         {
             try
             {
                 var prefix = (await _prefixContext.Prefixes.FindAsync(Context.Guild.Id))?.PrefixSymbol ??
-                             (await _prefixContext.GetDefaultPrefix()).PrefixSymbol;
+                             Prefix.GetDefaultSymbol();
                 var response = new StringBuilder();
                 foreach (var commandServiceCommand in _commandService.Commands)
                 {
@@ -70,7 +70,7 @@ namespace Simpbot.Core.Modules
 
         [Command("prefix", RunMode = RunMode.Async), Summary("updates the prefix")]
         [RequireUserPermission(GuildPermission.KickMembers)]
-        public async Task Prefix(char newPrefix)
+        public async Task PrefixAsync(char newPrefix)
         {
             try
             {
