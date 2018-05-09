@@ -59,18 +59,19 @@ namespace Simpbot.Core.Modules
             await usr.KickAsync();
         }
 
-        [Command("prune", RunMode = RunMode.Async)]
-        [Priority(0)]
-        public async Task PruneAsync(IUser user, int howMany)
+        [Command("prune", RunMode = RunMode.Async), Priority(0)]
+        public async Task PruneAsync(IUser user, byte howMany)
         {
-            howMany = howMany == 1 && user.Id.Equals(Context.User.Id) ? 2 : howMany;
+            if (howMany++ > 100 || howMany == 0) await ReplyAsync("Can't be bigger than 100 or smaller zero");
             try
             {
                 if (Context.Channel is ITextChannel channel)
                 {
                     var messages =
-                        (await channel.GetMessagesAsync(howMany).FlattenAsync())
-                        .Where(message => message.Author.Id.Equals(user.Id));
+                        (await channel.GetMessagesAsync().FlattenAsync())
+                        .Where(message => message.Author.Id.Equals(user.Id) || message.Id.Equals(Context.Message.Id))
+                        .Take(howMany)
+                        .ToList();
                     await channel.DeleteMessagesAsync(messages);
                 }
             }
@@ -82,17 +83,19 @@ namespace Simpbot.Core.Modules
 
         }
 
-        [Command("prune", RunMode = RunMode.Async)]
-        [Priority(1)]
-        public async Task PruneAsync(int howMany)
+        [Command("prune", RunMode = RunMode.Async), Priority(1)]
+        public async Task PruneAsync(byte howMany)
         {
-            howMany = howMany == 1 ? 2 : howMany;
+            if (howMany++ > 100 || howMany == 0) await ReplyAsync("Can't be bigger than 100 or smaller zero");
             try
             {
                 if (Context.Channel is ITextChannel channel)
                 {
                     var messages =
-                        await channel.GetMessagesAsync(howMany).FlattenAsync();
+                        (await channel.GetMessagesAsync()
+                            .FlattenAsync())
+                        .Take(howMany)
+                        .ToList();
                     await channel.DeleteMessagesAsync(messages);
                 }
             }
