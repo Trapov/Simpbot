@@ -11,14 +11,15 @@ using Simpbot.Core.Persistence;
 using Simpbot.Service.Search;
 using Simpbot.Service.Weather;
 using Simpbot.Service.Wikipedia;
+using Simpbot.Core.Extensions;
+using Simpbot.Core.Handlers;
 
 using System;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Simpbot.Core.Extensions;
-using Simpbot.Core.Handlers;
 
 namespace Simpbot.Core
 {
@@ -67,32 +68,24 @@ namespace Simpbot.Core
             await _commandService.AddModulesAsync(Assembly.GetExecutingAssembly());
 
             var commandHandler = new CommandHandler(_serviceProvider, _discordClient, _commandService);
+            var customLogger = _serviceProvider.GetRequiredService<ICustomLogger>();
 
-            Observable
-                .FromEvent<Func<SocketMessage, Task>, SocketMessage>(
-                    conversion => arg => Task.Run(() => conversion.Invoke(arg)),
-                    h => _discordClient.MessageReceived += h,
-                    h => _discordClient.MessageReceived -= h
-                )
-                .SubscribeAsync(commandHandler.HandleCommand);
-
-            _discordClient.Log += _serviceProvider
-                .GetRequiredService<ICustomLogger>()
-                .LogAsync;
-
-
-            await _discordClient.StartAsync();
-        }
-
-        public Task WaitForConnection()
-        {
-            return Task.Run(() =>
-            {
-                while (_discordClient.ConnectionState != ConnectionState.Connected)
-                {
-                    Task.Delay(200);
-                }
-            });
+            await Observable.Merge(
+                Observable.FromEvent<Func<SocketMessage, Task>, SocketMessage>(
+                        conversion => arg => Task.Run(() => conversion.Invoke(arg)),
+                        h => _discordClient.MessageReceived += h,
+                        h => _discordClient.MessageReceived -= h
+                    )
+                    .SubscribeAsyncChain(commandHandler.HandleCommand)
+                    .Select(_ => Unit.Default),
+                Observable.FromEvent<Func<LogMessage, Task>, LogMessage>(
+                        conversion => arg => Task.Run(() => conversion.Invoke(arg)),
+                        h => _discordClient.Log += h,
+                        h => _discordClient.Log -= h)
+                    .SubscribeAsyncChain(customLogger.LogAsync)
+                    .Select(_ => Unit.Default),
+                Observable.FromAsync(async unit => await _discordClient.StartAsync())
+            );
         }
 
         public Task SendMessage(Message message, ulong channelId)

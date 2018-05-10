@@ -12,7 +12,8 @@ namespace Simpbot.Cli
     {
         public static void Main()
         {
-            using (var bot = new BotClient(configuration => BuildConfiguration())) bot.StartAsync().ContinueWith(task => Task.Delay(-1).Wait()).Wait();
+            using (var bot = new BotClient(configuration => BuildConfiguration()))
+                bot.StartAsync().GetAwaiter().GetResult();
         }
 
         private static SimpbotConfiguration BuildConfiguration() => new SimpbotConfiguration
