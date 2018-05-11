@@ -61,30 +61,40 @@ namespace Simpbot.Core
 
         public async Task StartAsync()
         {
-            // migrate
-            await _serviceProvider.GetService<StorageContext>().MigrateAsync();
-
-            await _discordClient.LoginAsync(TokenType.Bot, _token);
-            await _commandService.AddModulesAsync(Assembly.GetExecutingAssembly());
-
-            var commandHandler = new CommandHandler(_serviceProvider, _discordClient, _commandService);
-            var customLogger = _serviceProvider.GetRequiredService<ICustomLogger>();
-
             await Observable.Merge(
+
+                Observable
+                    .FromAsync(async () => await _discordClient.LoginAsync(TokenType.Bot, _token))
+                    .Select(_ => Unit.Default),
+                Observable
+                    .FromAsync(async () => await _commandService.AddModulesAsync(Assembly.GetExecutingAssembly()))
+                    .Select(_ => Unit.Default),
+                Observable
+                    .FromAsync(async () => await _serviceProvider.GetService<StorageContext>().MigrateAsync())
+                    .Select(_ => Unit.Default),
+
                 Observable.FromEvent<Func<SocketMessage, Task>, SocketMessage>(
                         conversion => arg => Task.Run(() => conversion.Invoke(arg)),
                         h => _discordClient.MessageReceived += h,
                         h => _discordClient.MessageReceived -= h
                     )
-                    .SubscribeAsyncChain(commandHandler.HandleCommand)
+                    .SubscribeAsyncChain(new CommandHandler(_serviceProvider, _discordClient, _commandService).HandleCommand)
+                    .Select(_ => Unit.Default),
+                Observable.FromEvent<Func<Task>, Task>(
+                        conversion => (() => Task.Run(() => conversion.Invoke(Task.CompletedTask))) ,
+                        h => _discordClient.Ready += h,
+                        h => _discordClient.Ready -= h
+                    )
+                    .SubscribeAsyncChain(() => _discordClient.SetActivityAsync(new Game(string.Format(" in {0} servers", _discordClient.Guilds.Count))))
                     .Select(_ => Unit.Default),
                 Observable.FromEvent<Func<LogMessage, Task>, LogMessage>(
                         conversion => arg => Task.Run(() => conversion.Invoke(arg)),
                         h => _discordClient.Log += h,
                         h => _discordClient.Log -= h)
-                    .SubscribeAsyncChain(customLogger.LogAsync)
+                    .SubscribeAsyncChain(_serviceProvider.GetRequiredService<ICustomLogger>().LogAsync)
                     .Select(_ => Unit.Default),
                 Observable.FromAsync(async unit => await _discordClient.StartAsync())
+
             );
         }
 
@@ -95,7 +105,7 @@ namespace Simpbot.Core
 
         #endregion
 
-        #region IDisposable impl
+        #region Implementation of IDisposable
 
         public void Dispose()
         {

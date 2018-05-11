@@ -32,7 +32,6 @@ namespace Simpbot.Core.Modules
         {
             try
             {
-                await _customLogger.LogAsync(new LogMessage(LogSeverity.Info, "Module Bot", "Info"));
                 var prefix = (await _prefixContext.Prefixes.FindAsync(Context.Guild.Id))?.PrefixSymbol ??
                              Prefix.GetDefaultSymbol();
                 var response = new StringBuilder();
