@@ -61,7 +61,7 @@ namespace Simpbot.Core.Modules
         }
 
         [Command("prefix", RunMode = RunMode.Async), Summary("updates the prefix")]
-        [RequireUserPermission(GuildPermission.KickMembers)]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task PrefixAsync(char newPrefix)
         {
             var foundPrefix = await (
