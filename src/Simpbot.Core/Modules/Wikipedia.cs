@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Discord;
 using Discord.Commands;
@@ -22,22 +21,14 @@ namespace Simpbot.Core.Modules
         [Command("wiki", RunMode = RunMode.Async), Summary("Gets a wiki page")]
         public async Task GetWikiPage([Remainder] string query)
         {
-            try
-            {
-                var result = await _wikipediaService.SearchForPageAsync(query);
+            var result = await _wikipediaService.SearchForPageAsync(query);
 
-                var embed = new EmbedBuilder()
-                    .WithTitle(result.Title)
-                    .WithDescription(result.SelfLink)
-                    .Build();
+            var embed = new EmbedBuilder()
+                .WithTitle(result.Title)
+                .WithDescription(result.SelfLink)
+                .Build();
 
-                await ReplyAsync(Context.User.Mention, false, embed).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                await _customLogger.LogAsync(e);
-                await ReplyAsync("Unhandled error").ConfigureAwait(false);
-            }
+            await ReplyAsync(Context.User.Mention, false, embed).ConfigureAwait(false);
         }
     }
 }

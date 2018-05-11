@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
 using Discord;
@@ -64,48 +63,30 @@ namespace Simpbot.Core.Modules
         public async Task PruneAsync(IUser user, byte howMany)
         {
             if (howMany++ > 100 || howMany == 0) await ReplyAsync("Can't be bigger than 100 or smaller zero");
-            try
+            if (Context.Channel is ITextChannel channel)
             {
-                if (Context.Channel is ITextChannel channel)
-                {
-                    var messages =
-                        (await channel.GetMessagesAsync().FlattenAsync())
-                        .Where(message => message.Author.Id.Equals(user.Id) || message.Id.Equals(Context.Message.Id))
-                        .Take(howMany)
-                        .ToList();
-                    await channel.DeleteMessagesAsync(messages);
-                }
+                var messages =
+                    (await channel.GetMessagesAsync().FlattenAsync())
+                    .Where(message => message.Author.Id.Equals(user.Id) || message.Id.Equals(Context.Message.Id))
+                    .Take(howMany)
+                    .ToList();
+                await channel.DeleteMessagesAsync(messages);
             }
-            catch (Exception e)
-            {
-                await _customLogger.LogAsync(e);
-                throw;
-            }
-
         }
 
         [Command("prune", RunMode = RunMode.Async), Priority(1)]
         public async Task PruneAsync(byte howMany)
         {
             if (howMany++ > 100 || howMany == 0) await ReplyAsync("Can't be bigger than 100 or smaller zero");
-            try
+            if (Context.Channel is ITextChannel channel)
             {
-                if (Context.Channel is ITextChannel channel)
-                {
-                    var messages =
-                        (await channel.GetMessagesAsync()
-                            .FlattenAsync())
-                        .Take(howMany)
-                        .ToList();
-                    await channel.DeleteMessagesAsync(messages);
-                }
+                var messages =
+                    (await channel.GetMessagesAsync()
+                        .FlattenAsync())
+                    .Take(howMany)
+                    .ToList();
+                await channel.DeleteMessagesAsync(messages);
             }
-            catch (Exception e)
-            {
-                await _customLogger.LogAsync(e);
-                throw;
-            }
-
         }
     }
 }
