@@ -22,7 +22,7 @@ namespace Simpbot.Core.Modules
         [Command("im", RunMode = RunMode.Async), Alias("im2", "image"), Summary("Searches for an image")]
         public async Task SearchForImage([Remainder] string query)
         {
-            var result = (await _searchService.SearchForAsync(query, ResultType.Image)).Items?.FirstOrDefault();
+            var result = (await _searchService.SearchForAsync(query, ResultType.Image).ConfigureAwait(false)).Items?.FirstOrDefault();
             var response = result != null ? result.Link : "No image found!";
 
             var embed = new EmbedBuilder()
@@ -36,7 +36,7 @@ namespace Simpbot.Core.Modules
         [Command("gif", RunMode = RunMode.Async), Summary("Searches for a gif")]
         public async Task SearchForGif([Remainder] string query)
         {
-            var result = (await _searchService.SearchForAsync(query, ResultType.Gif)).Items?.FirstOrDefault();
+            var result = (await _searchService.SearchForAsync(query, ResultType.Gif).ConfigureAwait(false)).Items?.FirstOrDefault();
             var response = result != null ? result.Link : "No image found!";
 
             var embed = new EmbedBuilder()
@@ -50,7 +50,7 @@ namespace Simpbot.Core.Modules
         [Command("google", RunMode = RunMode.Async), Summary("Searches for a query")]
         public async Task SearchForTexts([Remainder] string query)
         {
-                var response = await _searchService.SearchForAsync(query, ResultType.Text);
+                var response = await _searchService.SearchForAsync(query, ResultType.Text).ConfigureAwait(false);
                 var embed = new EmbedBuilder();
 
                 foreach (var link in response.Items.Take(5))
@@ -65,11 +65,10 @@ namespace Simpbot.Core.Modules
         public async Task SearchForVideo([Remainder] string query)
         {
 
-            var response = (await _searchService.SearchForAsync(query, ResultType.Youtube))
+            var response = (await _searchService.SearchForAsync(query, ResultType.Youtube).ConfigureAwait(false))
                 .Items?
                 .FirstOrDefault()
                 ?.Link;
-            //TODO: write a filter exception or something
 
             await ReplyAsync(response ?? "Video not found").ConfigureAwait(false);
 
