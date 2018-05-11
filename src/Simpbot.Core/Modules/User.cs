@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -20,21 +19,13 @@ namespace Simpbot.Core.Modules
         [Command("avatar"), Summary("gives an avatar of a user")]
         public Task Avatar(IUser user)
         {
-            try
-            {
-                
-                var embed = new EmbedBuilder()
-                    .WithImageUrl(user.GetAvatarUrl())
-                    .WithColor(Color.Blue)
-                    .Build();
+            var embed = new EmbedBuilder()
+                .WithImageUrl(user.GetAvatarUrl())
+                .WithColor(Color.Blue)
+                .Build();
 
-                return ReplyAsync(Context.User.Mention, false, embed);
-            }
-            catch (Exception e)
-            {
-                _customLogger.LogAsync(e).Wait();
-                return ReplyAsync("Unhandled error");
-            }
+            return ReplyAsync(Context.User.Mention, false, embed);
+
         }
 
         [Command("info", RunMode = RunMode.Async), Summary("Gives a user info")]
