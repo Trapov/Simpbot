@@ -49,6 +49,10 @@ namespace Simpbot.Core
                 .AddDbContext<StorageContext>(ServiceLifetime.Transient)
                 .BuildServiceProvider();
 
+            _commandService.Log += _serviceProvider
+                .GetRequiredService<ICustomLogger>()
+                .LogAsync;
+
 #if WINDOWS7
             _discordClient =
                 new DiscordSocketClient(new DiscordSocketConfig {WebSocketProvider = WS4NetProvider.Instance});
