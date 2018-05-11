@@ -85,6 +85,7 @@ namespace Simpbot.Core.Modules
                         .FlattenAsync())
                     .Take(howMany)
                     .ToList();
+
                 await channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
             }
         }

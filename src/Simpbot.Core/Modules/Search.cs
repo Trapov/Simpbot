@@ -64,14 +64,12 @@ namespace Simpbot.Core.Modules
         [Command("yt", RunMode = RunMode.Async), Summary("Searches for a query")]
         public async Task SearchForVideo([Remainder] string query)
         {
-
             var response = (await _searchService.SearchForAsync(query, ResultType.Youtube).ConfigureAwait(false))
                 .Items?
                 .FirstOrDefault()
                 ?.Link;
 
             await ReplyAsync(response ?? "Video not found").ConfigureAwait(false);
-
         }
     }
 }
