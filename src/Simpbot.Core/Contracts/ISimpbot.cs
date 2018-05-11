@@ -19,11 +19,5 @@ namespace Simpbot.Core.Contracts
         /// </summary>
         /// <returns></returns>
         Task StartAsync();
-
-        /// <summary>
-        /// TBD
-        /// </summary>
-        /// <returns></returns>
-        Task WaitForConnection();
     }
 }

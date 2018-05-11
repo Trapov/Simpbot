@@ -32,7 +32,6 @@ namespace Simpbot.Core.Modules
                 .WithThumbnailUrl(weatherUrl)
                 .AddField($"Weather in {result.Name}", $"🌡 {(result.Main.Temp - 273.15).ToString("##.",CultureInfo.InvariantCulture)}°C\n💨 {result.Wind.Speed}km/h\n ")
                 .Build();
-
             await ReplyAsync(Context.User.Mention, false, embed)
                 .ConfigureAwait(false);
         }

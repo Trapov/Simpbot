@@ -70,6 +70,7 @@ namespace Simpbot.Core.Modules
                     .Where(message => message.Author.Id.Equals(user.Id) || message.Id.Equals(Context.Message.Id))
                     .Take(howMany)
                     .ToList();
+
                 await channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
             }
         }
@@ -85,6 +86,7 @@ namespace Simpbot.Core.Modules
                         .FlattenAsync())
                     .Take(howMany)
                     .ToList();
+
                 await channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
             }
         }
