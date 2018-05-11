@@ -21,14 +21,16 @@ namespace Simpbot.Core.Modules
         [Command("wiki", RunMode = RunMode.Async), Summary("Gets a wiki page")]
         public async Task GetWikiPage([Remainder] string query)
         {
-            var result = await _wikipediaService.SearchForPageAsync(query);
+            var result = await _wikipediaService.SearchForPageAsync(query)
+                .ConfigureAwait(false);
 
             var embed = new EmbedBuilder()
                 .WithTitle(result.Title)
                 .WithDescription(result.SelfLink)
                 .Build();
 
-            await ReplyAsync(Context.User.Mention, false, embed).ConfigureAwait(false);
+            await ReplyAsync(Context.User.Mention, false, embed)
+                .ConfigureAwait(false);
         }
     }
 }
