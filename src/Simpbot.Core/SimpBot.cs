@@ -23,12 +23,13 @@ using System.Threading.Tasks;
 
 namespace Simpbot.Core
 {
-    public class Simpbot : ISimpbot, IDisposable
+    public class Simpbot : ISimpbot
     {
         private readonly string _token;
         private readonly DiscordSocketClient _discordClient;
         private readonly CommandService _commandService;
         private readonly IServiceProvider _serviceProvider;
+        public Action StopCallback { get; set; }
 
         public Simpbot(Func<SimpbotConfiguration, SimpbotConfiguration> configuration)
         {
@@ -37,7 +38,7 @@ namespace Simpbot.Core
             _token = cnf.Token;
 
             _commandService = new CommandService();
-
+            
             _serviceProvider = new ServiceCollection()
                 .AddSingleton(provider => cnf.WeatherServiceConfiguration)
                 .AddSingleton(provider => cnf.SearchServiceConfiguration)
@@ -48,10 +49,6 @@ namespace Simpbot.Core
                 .AddScoped<ICustomLogger, CustomLogger>()
                 .AddDbContext<StorageContext>(ServiceLifetime.Transient)
                 .BuildServiceProvider();
-
-            _commandService.Log += _serviceProvider
-                .GetRequiredService<ICustomLogger>()
-                .LogAsync;
 
 #if WINDOWS7
             _discordClient =
@@ -82,7 +79,7 @@ namespace Simpbot.Core
                         h => _discordClient.MessageReceived += h,
                         h => _discordClient.MessageReceived -= h
                     )
-                    .SubscribeAsyncChain(new CommandHandler(_serviceProvider, _discordClient, _commandService).HandleCommand)
+                    .SubscribeAsyncChain(new CommandHandler(_serviceProvider, _discordClient, _commandService).HandleCommand, exception => StopCallback?.Invoke())
                     .Select(_ => Unit.Default),
                 Observable.FromEvent<Func<Task>, Task>(
                         conversion => (() => Task.Run(() => conversion.Invoke(Task.CompletedTask))) ,
@@ -93,10 +90,19 @@ namespace Simpbot.Core
                     .Select(_ => Unit.Default),
                 Observable.FromEvent<Func<LogMessage, Task>, LogMessage>(
                         conversion => arg => Task.Run(() => conversion.Invoke(arg)),
-                        h => _discordClient.Log += h,
-                        h => _discordClient.Log -= h)
+                        h =>
+                        {
+                            _discordClient.Log += h;
+                            _commandService.Log += h;
+                        },
+                        h =>
+                        {
+                            _discordClient.Log -= h;
+                            _commandService.Log -= h;
+                        })
                     .SubscribeAsyncChain(_serviceProvider.GetRequiredService<ICustomLogger>().LogAsync)
                     .Select(_ => Unit.Default),
+
                 Observable.FromAsync(async unit => await _discordClient.StartAsync())
 
             );

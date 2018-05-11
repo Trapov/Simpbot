@@ -1,4 +1,5 @@
-﻿using Simpbot.Service.Search;
+﻿using System;
+using Simpbot.Service.Search;
 using Simpbot.Service.Weather;
 
 namespace Simpbot.Core.Dto
