@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+
 using Simpbot.Cli.Service;
 using Simpbot.Core.Dto;
 using Simpbot.Service.Search;

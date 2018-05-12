@@ -7,6 +7,7 @@ using Discord.Commands;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Simpbot.Core.Persistence;
 using Simpbot.Core.Persistence.Entity;
 

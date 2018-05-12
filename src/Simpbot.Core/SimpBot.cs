@@ -43,11 +43,13 @@ namespace Simpbot.Core
 
             _token = cnf.Token;
             _commandService = new CommandService();
-
+            var filePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) 
+                                          + "/Logs/"
+                                          + DateTime.Today.ToString("yy-MM-dd")
+                                          + ".log";
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Async(sinkConfiguration =>
-                    sinkConfiguration.File(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/Simpbot/" +
-                                           DateTime.Today.ToString("yy-MM-dd") + ".log"))
+                    sinkConfiguration.File(filePath))
 #if DEBUG
                 .WriteTo.Async(sinkConfiguration => sinkConfiguration.Console())
 #endif
