@@ -14,12 +14,10 @@ namespace Simpbot.Core.Modules
     public class Guild : ModuleBase
     {
         private readonly StorageContext _guildContext;
-        private readonly ICustomLogger _customLogger;
 
-        public Guild(StorageContext guildContext, ICustomLogger customLogger)
+        public Guild(StorageContext guildContext)
         {
             _guildContext = guildContext;
-            _customLogger = customLogger;
         }
 
         [Command("mute", RunMode = RunMode.Async)]
@@ -85,6 +83,7 @@ namespace Simpbot.Core.Modules
                         .FlattenAsync())
                     .Take(howMany)
                     .ToList();
+
                 await channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
             }
         }

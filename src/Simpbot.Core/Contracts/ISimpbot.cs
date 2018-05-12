@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Simpbot.Core.Dto;
 
 namespace Simpbot.Core.Contracts
 {
-    public interface ISimpbot
+    public interface ISimpbot : IDisposable
     {
         /// <summary>
         /// Sends a message to a channel
@@ -20,10 +21,6 @@ namespace Simpbot.Core.Contracts
         /// <returns></returns>
         Task StartAsync();
 
-        /// <summary>
-        /// TBD
-        /// </summary>
-        /// <returns></returns>
-        Task WaitForConnection();
+        Action StopCallback { get; set; }
     }
 }

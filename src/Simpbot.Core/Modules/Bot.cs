@@ -6,7 +6,6 @@ using Discord;
 using Discord.Commands;
 
 using Microsoft.EntityFrameworkCore;
-
 using Simpbot.Core.Persistence;
 using Simpbot.Core.Persistence.Entity;
 
@@ -17,23 +16,29 @@ namespace Simpbot.Core.Modules
     {
         private readonly CommandService _commandService;
         private readonly StorageContext _prefixContext;
-        private readonly ICustomLogger _customLogger;
 
-        public Bot(CommandService commandService, StorageContext prefixContext, ICustomLogger customLogger)
+        public Bot(CommandService commandService, StorageContext prefixContext)
         {
             _commandService = commandService;
             _prefixContext = prefixContext;
-            _customLogger = customLogger;
         }
 
         [Command("info", RunMode = RunMode.Async), Summary("info about the bot")]
         public async Task InfoAsync()
-        {
+    {
+            var prefix = (await _prefixContext.Prefixes.FindAsync(Context.Guild.Id)
+                             .ConfigureAwait(false)
+                         )?.PrefixSymbol ?? Prefix.GetDefaultSymbol();
 
-            var prefix = (await _prefixContext.Prefixes.FindAsync(Context.Guild.Id).ConfigureAwait(false))?.PrefixSymbol ??
-                            Prefix.GetDefaultSymbol();
-            var response = new StringBuilder();
-            foreach (var commandServiceCommand in _commandService.Commands)
+            var response = new StringBuilder()
+                .AppendLine("**Available Commands:**")
+                .AppendLine("```");
+
+            foreach (var commandServiceCommand in _commandService
+                .Commands
+                .OrderBy(csc => string.IsNullOrEmpty(csc.Aliases.FirstOrDefault())
+                    ? csc.Name
+                    : csc.Aliases.FirstOrDefault() + " "))
             {
                 var prefixGroup = commandServiceCommand.Aliases.FirstOrDefault();
 
@@ -42,26 +47,24 @@ namespace Simpbot.Core.Modules
                     ? commandServiceCommand.Name
                     : prefixGroup + " ";
 
-                response
-                    .AppendLine($"Command: {prefix}{commandName}")
-                    .AppendLine($"Parameters: {string.Join(", ", commandServiceCommand.Parameters)}")
-                    .AppendLine($"Summary: {commandServiceCommand.Summary}")
-                    .AppendLine("----------------------------");
+                response.AppendLine(
+                    $"{prefix}{commandName}{string.Join(" ", commandServiceCommand.Parameters.Select(s => "<" + s + ">"))}"
+                        .PadRight(25, ' ')
+                    + (commandServiceCommand.Summary != null ? $"- {commandServiceCommand.Summary}" : ""));
             }
+            response.AppendLine("```");
 
             var embed = new EmbedBuilder()
-                .WithTitle("INFO")
                 .WithColor(Color.DarkPurple)
                 .WithDescription(response.ToString())
                 .Build();
 
             await ReplyAsync(Context.User.Mention, false, embed)
                 .ConfigureAwait(false);
-
         }
 
         [Command("prefix", RunMode = RunMode.Async), Summary("updates the prefix")]
-        [RequireUserPermission(GuildPermission.KickMembers)]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task PrefixAsync(char newPrefix)
         {
             var foundPrefix = await (

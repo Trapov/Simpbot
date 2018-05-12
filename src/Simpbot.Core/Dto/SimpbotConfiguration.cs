@@ -8,5 +8,6 @@ namespace Simpbot.Core.Dto
         public string Token { get; set; }
         public WeatherServiceConfiguration WeatherServiceConfiguration { get; set; }
         public SearchServiceConfiguration SearchServiceConfiguration { get; set; }
+        public bool LogInConsole { get; set; }
     }
 }

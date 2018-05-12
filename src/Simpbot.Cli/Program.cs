@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
 
+using Simpbot.Cli.Service;
 using Simpbot.Core.Dto;
 using Simpbot.Service.Search;
 using Simpbot.Service.Weather;
@@ -10,12 +11,29 @@ namespace Simpbot.Cli
 {
     public static class Program
     {
-        public static void Main()
+        private const string RegisterServiceFlag = "--register-service";
+        private const string RunAsServiceFlag = "--run-as-service";
+
+        public static void Main(string[] args)
         {
-            using (var bot = new BotClient(configuration => BuildConfiguration())) bot.StartAsync().ContinueWith(task => Task.Delay(-1).Wait()).Wait();
+            if (args.Contains(RegisterServiceFlag))
+            {
+                SimpbotServiceBuilder.RegisterService(RegisterServiceFlag, RunAsServiceFlag);
+            }
+            else if (args.Contains(RunAsServiceFlag))
+            {
+                using (var bot = new BotClient(configuration => BuildConfiguration(false)))
+                    SimpbotServiceBuilder.RunAsService(bot);
+            }
+            else
+            {
+                using (var bot = new BotClient(configuration => BuildConfiguration(true)))
+                    bot.StartAsync().GetAwaiter().GetResult();
+            }
+            
         }
 
-        private static SimpbotConfiguration BuildConfiguration() => new SimpbotConfiguration
+        private static SimpbotConfiguration BuildConfiguration(bool logInConsoleFlag) => new SimpbotConfiguration
         {
             Token = BotConfiguration.BotToken,
             WeatherServiceConfiguration = new WeatherServiceConfiguration
@@ -26,7 +44,8 @@ namespace Simpbot.Cli
             {
                 ApiKey = BotConfiguration.ImageServiceKey,
                 CxKey = BotConfiguration.ImageServiceCustomEngineKey
-            }
+            },
+            LogInConsole = logInConsoleFlag
         };
     }
 }

@@ -11,40 +11,43 @@ namespace Simpbot.Core.Modules
     public class Search : ModuleBase
     {
         private readonly ISearchService _searchService;
-        private readonly ICustomLogger _customLogger;
 
-        public Search(ISearchService searchService, ICustomLogger customLogger)
+        public Search(ISearchService searchService)
         {
             _searchService = searchService;
-            _customLogger = customLogger;
         }
 
         [Command("im", RunMode = RunMode.Async), Alias("im2", "image"), Summary("Searches for an image")]
         public async Task SearchForImage([Remainder] string query)
         {
             var result = (await _searchService.SearchForAsync(query, ResultType.Image).ConfigureAwait(false)).Items?.FirstOrDefault();
-            var response = result != null ? result.Link : "No image found!";
-
             var embed = new EmbedBuilder()
-                .WithImageUrl(response)
-                .WithColor(Color.Blue)
-                .Build();
+                .WithColor(Color.Blue);
 
-            await ReplyAsync(Context.User.Mention, false, embed).ConfigureAwait(false);
+            if (result == null)
+            {
+                await ReplyAsync("No image found").ConfigureAwait(false);
+                return;
+            }
+            embed.WithImageUrl(result.Link);
+            await ReplyAsync(Context.User.Mention, false, embed.Build()).ConfigureAwait(false);
         }
 
         [Command("gif", RunMode = RunMode.Async), Summary("Searches for a gif")]
         public async Task SearchForGif([Remainder] string query)
         {
             var result = (await _searchService.SearchForAsync(query, ResultType.Gif).ConfigureAwait(false)).Items?.FirstOrDefault();
-            var response = result != null ? result.Link : "No image found!";
 
             var embed = new EmbedBuilder()
-                .WithImageUrl(response)
-                .WithColor(Color.Blue)
-                .Build();
+                .WithColor(Color.Blue);
 
-            await ReplyAsync(Context.User.Mention, false, embed).ConfigureAwait(false);
+            if (result == null)
+            {
+                await ReplyAsync("No gif found").ConfigureAwait(false);
+                return;
+            }
+            embed.WithImageUrl(result.Link);
+            await ReplyAsync(Context.User.Mention, false, embed.Build()).ConfigureAwait(false);
         }
 
         [Command("google", RunMode = RunMode.Async), Summary("Searches for a query")]
@@ -64,14 +67,12 @@ namespace Simpbot.Core.Modules
         [Command("yt", RunMode = RunMode.Async), Summary("Searches for a query")]
         public async Task SearchForVideo([Remainder] string query)
         {
-
             var response = (await _searchService.SearchForAsync(query, ResultType.Youtube).ConfigureAwait(false))
                 .Items?
                 .FirstOrDefault()
                 ?.Link;
 
             await ReplyAsync(response ?? "Video not found").ConfigureAwait(false);
-
         }
     }
 }
