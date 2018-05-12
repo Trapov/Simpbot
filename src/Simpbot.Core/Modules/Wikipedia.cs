@@ -10,12 +10,10 @@ namespace Simpbot.Core.Modules
     public class Wikipedia : ModuleBase
     {
         private readonly IWikipediaService _wikipediaService;
-        private readonly ICustomLogger _customLogger;
 
-        public Wikipedia(IWikipediaService wikipediaService, ICustomLogger customLogger)
+        public Wikipedia(IWikipediaService wikipediaService)
         {
             _wikipediaService = wikipediaService;
-            _customLogger = customLogger;
         }
 
         [Command("wiki", RunMode = RunMode.Async), Summary("Gets a wiki page")]

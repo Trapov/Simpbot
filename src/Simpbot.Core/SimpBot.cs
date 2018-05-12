@@ -47,13 +47,13 @@ namespace Simpbot.Core
                                           + "/Logs/"
                                           + DateTime.Today.ToString("yy-MM-dd")
                                           + ".log";
-            Log.Logger = new LoggerConfiguration()
+            var loggerConfig = new LoggerConfiguration()
                 .WriteTo.Async(sinkConfiguration =>
-                    sinkConfiguration.File(filePath))
-#if DEBUG
-                .WriteTo.Async(sinkConfiguration => sinkConfiguration.Console())
-#endif
-                .CreateLogger();
+                    sinkConfiguration.File(filePath));
+            if(cnf.LogInConsole)
+                loggerConfig = loggerConfig.WriteTo.Async(sinkConfiguration => sinkConfiguration.Console());
+
+            Log.Logger = loggerConfig.CreateLogger();
 
             _serviceProvider = new ServiceCollection()
                 .AddSingleton(provider => cnf.WeatherServiceConfiguration)

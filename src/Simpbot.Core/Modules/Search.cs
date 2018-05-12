@@ -11,12 +11,10 @@ namespace Simpbot.Core.Modules
     public class Search : ModuleBase
     {
         private readonly ISearchService _searchService;
-        private readonly ICustomLogger _customLogger;
 
-        public Search(ISearchService searchService, ICustomLogger customLogger)
+        public Search(ISearchService searchService)
         {
             _searchService = searchService;
-            _customLogger = customLogger;
         }
 
         [Command("im", RunMode = RunMode.Async), Alias("im2", "image"), Summary("Searches for an image")]

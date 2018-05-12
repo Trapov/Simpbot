@@ -22,18 +22,18 @@ namespace Simpbot.Cli
             }
             else if (args.Contains(RunAsServiceFlag))
             {
-                using (var bot = new BotClient(configuration => BuildConfiguration()))
+                using (var bot = new BotClient(configuration => BuildConfiguration(false)))
                     SimpbotServiceBuilder.RunAsService(bot);
             }
             else
             {
-                using (var bot = new BotClient(configuration => BuildConfiguration()))
+                using (var bot = new BotClient(configuration => BuildConfiguration(true)))
                     bot.StartAsync().GetAwaiter().GetResult();
             }
             
         }
 
-        private static SimpbotConfiguration BuildConfiguration() => new SimpbotConfiguration
+        private static SimpbotConfiguration BuildConfiguration(bool logInConsoleFlag) => new SimpbotConfiguration
         {
             Token = BotConfiguration.BotToken,
             WeatherServiceConfiguration = new WeatherServiceConfiguration
@@ -44,7 +44,8 @@ namespace Simpbot.Cli
             {
                 ApiKey = BotConfiguration.ImageServiceKey,
                 CxKey = BotConfiguration.ImageServiceCustomEngineKey
-            }
+            },
+            LogInConsole = logInConsoleFlag
         };
     }
 }

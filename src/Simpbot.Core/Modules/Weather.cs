@@ -12,12 +12,10 @@ namespace Simpbot.Core.Modules
     public class Weather : ModuleBase
     {
         private readonly IWeatherService _weatherService;
-        private readonly ICustomLogger _customLogger;
 
-        public Weather(IWeatherService weatherService, ICustomLogger customLogger)
+        public Weather(IWeatherService weatherService)
         {
             _weatherService = weatherService;
-            _customLogger = customLogger;
         }
 
         [Command("weather", RunMode = RunMode.Async), Summary("Gets the current weather")]
