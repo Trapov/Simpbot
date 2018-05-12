@@ -31,14 +31,19 @@ namespace Simpbot.Core.Modules
         [Command("info", RunMode = RunMode.Async), Summary("info about the bot")]
         public async Task InfoAsync()
         {
-            var prefix = (await _prefixContext.Prefixes.FindAsync(Context.Guild.Id).ConfigureAwait(false))?.PrefixSymbol ??
-                            Prefix.GetDefaultSymbol();
-            var response = new StringBuilder();
-            response.AppendLine("**Available Commands:**")
+            var prefix = (await _prefixContext.Prefixes.FindAsync(Context.Guild.Id)
+                             .ConfigureAwait(false)
+                         )?.PrefixSymbol ?? Prefix.GetDefaultSymbol();
+
+            var response = new StringBuilder()
+                .AppendLine("**Available Commands:**")
                 .AppendLine("```");
-            foreach (var commandServiceCommand in _commandService.Commands
-                .OrderBy(csc => string.IsNullOrEmpty(csc.Aliases.FirstOrDefault()) ? csc.Name : csc.Aliases.FirstOrDefault() + " ")
-                .ToList())
+
+            foreach (var commandServiceCommand in _commandService
+                .Commands
+                .OrderBy(csc => string.IsNullOrEmpty(csc.Aliases.FirstOrDefault())
+                    ? csc.Name
+                    : csc.Aliases.FirstOrDefault() + " "))
             {
                 var prefixGroup = commandServiceCommand.Aliases.FirstOrDefault();
 
@@ -47,8 +52,10 @@ namespace Simpbot.Core.Modules
                     ? commandServiceCommand.Name
                     : prefixGroup + " ";
 
-                response.AppendLine($"{prefix}{commandName}{string.Join(" ", commandServiceCommand.Parameters.Select(s => "<" + s + ">"))}".PadRight(25, ' ')
-                    + (commandServiceCommand.Summary != null ? $"- {commandServiceCommand.Summary}" : "" ) );
+                response.AppendLine(
+                    $"{prefix}{commandName}{string.Join(" ", commandServiceCommand.Parameters.Select(s => "<" + s + ">"))}"
+                        .PadRight(25, ' ')
+                    + (commandServiceCommand.Summary != null ? $"- {commandServiceCommand.Summary}" : ""));
             }
             response.AppendLine("```");
 
