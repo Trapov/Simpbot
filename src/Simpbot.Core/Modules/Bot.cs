@@ -6,7 +6,7 @@ using Discord;
 using Discord.Commands;
 
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Logging;
 using Simpbot.Core.Persistence;
 using Simpbot.Core.Persistence.Entity;
 
@@ -18,12 +18,14 @@ namespace Simpbot.Core.Modules
         private readonly CommandService _commandService;
         private readonly StorageContext _prefixContext;
         private readonly ICustomLogger _customLogger;
+        private readonly ILogger<Bot> _logger;
 
-        public Bot(CommandService commandService, StorageContext prefixContext, ICustomLogger customLogger)
+        public Bot(CommandService commandService, StorageContext prefixContext, ICustomLogger customLogger, ILogger<Bot> logger)
         {
             _commandService = commandService;
             _prefixContext = prefixContext;
             _customLogger = customLogger;
+            _logger = logger;
         }
 
         [Command("info", RunMode = RunMode.Async), Summary("info about the bot")]

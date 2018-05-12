@@ -4,6 +4,11 @@ using Discord.Net.Providers.WS4Net;
 using Discord.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using Serilog;
+using Serilog.Sinks.Async;
+using Serilog.Sinks.File;
 
 using Simpbot.Core.Contracts;
 using Simpbot.Core.Dto;
@@ -15,6 +20,7 @@ using Simpbot.Core.Extensions;
 using Simpbot.Core.Handlers;
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -36,9 +42,17 @@ namespace Simpbot.Core
             var cnf = configuration.Invoke(new SimpbotConfiguration());
 
             _token = cnf.Token;
-
             _commandService = new CommandService();
-            
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Async(sinkConfiguration =>
+                    sinkConfiguration.File(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/Simpbot/" +
+                                           DateTime.Today.ToString("yy-MM-dd") + ".log"))
+#if DEBUG
+                .WriteTo.Async(sinkConfiguration => sinkConfiguration.Console())
+#endif
+                .CreateLogger();
+
             _serviceProvider = new ServiceCollection()
                 .AddSingleton(provider => cnf.WeatherServiceConfiguration)
                 .AddSingleton(provider => cnf.SearchServiceConfiguration)
@@ -47,7 +61,9 @@ namespace Simpbot.Core
                 .AddScoped<IWikipediaService, WikipediaService>()
                 .AddScoped<ISearchService, SearchService>()
                 .AddScoped<ICustomLogger, CustomLogger>()
+                .AddScoped<LoggerAdapter>()
                 .AddDbContext<StorageContext>(ServiceLifetime.Transient)
+                .AddLogging(builder => builder.AddSerilog(dispose:true))
                 .BuildServiceProvider();
 
 #if WINDOWS7
@@ -79,14 +95,15 @@ namespace Simpbot.Core
                         h => _discordClient.MessageReceived += h,
                         h => _discordClient.MessageReceived -= h
                     )
-                    .SubscribeAsyncChain(new CommandHandler(_serviceProvider, _discordClient, _commandService).HandleCommand, exception => StopCallback?.Invoke())
+                    .SubscribeAsyncChain(new CommandHandler(_serviceProvider, _discordClient, _commandService).HandleCommand)
                     .Select(_ => Unit.Default),
                 Observable.FromEvent<Func<Task>, Task>(
-                        conversion => (() => Task.Run(() => conversion.Invoke(Task.CompletedTask))) ,
+                        conversion => (() => Task.Run(() => conversion.Invoke(Task.CompletedTask))),
                         h => _discordClient.Ready += h,
                         h => _discordClient.Ready -= h
                     )
-                    .SubscribeAsyncChain(() => _discordClient.SetActivityAsync(new Game(string.Format(" in {0} servers", _discordClient.Guilds.Count))))
+                    .SubscribeAsyncChain(() =>
+                        _discordClient.SetActivityAsync(new Game($" in {_discordClient.Guilds.Count} servers")))
                     .Select(_ => Unit.Default),
                 Observable.FromEvent<Func<LogMessage, Task>, LogMessage>(
                         conversion => arg => Task.Run(() => conversion.Invoke(arg)),
@@ -100,12 +117,21 @@ namespace Simpbot.Core
                             _discordClient.Log -= h;
                             _commandService.Log -= h;
                         })
-                    .SubscribeAsyncChain(_serviceProvider.GetRequiredService<ICustomLogger>().LogAsync)
+                    .SubscribeChain(_serviceProvider.GetRequiredService<LoggerAdapter>().Log)
                     .Select(_ => Unit.Default),
 
-                Observable.FromAsync(async unit => await _discordClient.StartAsync())
+                Observable.FromAsync(async unit =>
+                {
+                    await _discordClient.StartAsync();
+                })
 
-            );
+            ).Catch<Unit,Exception>( ex =>
+            {
+                Log.Fatal(ex, "");
+                StopCallback?.Invoke();
+                Log.CloseAndFlush();
+                return Observable.Empty(Unit.Default);
+            });
         }
 
         public Task SendMessage(Message message, ulong channelId)

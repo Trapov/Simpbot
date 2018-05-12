@@ -58,5 +58,11 @@ namespace Simpbot.Core.Extensions
             var disp = handler == null ? source.SelectMany(Wrapped).Subscribe(_ => { }) : source.SelectMany(Wrapped).Subscribe(_ => { }, handler);
             return source;
         }
+
+        public static IObservable<T> SubscribeChain<T>(this IObservable<T> source, Action<T> onNext)
+        {
+            var disp = source.Subscribe(onNext);
+            return source;
+        }
     }
 }

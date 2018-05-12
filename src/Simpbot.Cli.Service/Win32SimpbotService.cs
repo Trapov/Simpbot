@@ -1,5 +1,5 @@
-﻿using System;
-using DasMulli.Win32.ServiceUtils;
+﻿using DasMulli.Win32.ServiceUtils;
+
 using Simpbot.Core.Contracts;
 
 namespace Simpbot.Cli.Service
@@ -18,7 +18,7 @@ namespace Simpbot.Cli.Service
 
         public void Start(string[] startupArguments, ServiceStoppedCallback serviceStoppedCallback)
         {
-            _simpbotClient.StopCallback =() =>
+            _simpbotClient.StopCallback = () =>
             {
                 if(_stopRequestedByWindows)
                     serviceStoppedCallback.Invoke();
