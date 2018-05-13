@@ -24,6 +24,12 @@ namespace Simpbot.Core.Modules
             var result = await _weatherService.GetWeather(city)
                 .ConfigureAwait(false);
 
+            if (result == null)
+            {
+                await ReplyAsync("No such city");
+                return;
+            }
+
             var weatherUrl = $@"http://openweathermap.org/img/w/{result.WeatherWeather.FirstOrDefault().Icon}.png";
 
             var embed = new EmbedBuilder()

@@ -26,8 +26,7 @@ namespace Simpbot.Service.Weather
             var url = string.Format(BaseUrl, city, _apiKey);
             var result = await _httpClient.GetAsync(url);
             var stringRead = await result.Content.ReadAsStringAsync();
-            var jsonMapped = JsonConvert.DeserializeObject<CityWeather>(stringRead);
-            return jsonMapped;
+            return JsonConvert.DeserializeObject<CityWeather>(stringRead);
         }
 
         public void Dispose()
