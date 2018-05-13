@@ -4,11 +4,8 @@ using Discord.Net.Providers.WS4Net;
 using Discord.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 using Serilog;
-using Serilog.Sinks.Async;
-using Serilog.Sinks.File;
 
 using Simpbot.Core.Contracts;
 using Simpbot.Core.Dto;
@@ -43,13 +40,10 @@ namespace Simpbot.Core
 
             _token = cnf.Token;
             _commandService = new CommandService();
-            var filePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) 
-                                          + "/Logs/"
-                                          + DateTime.Today.ToString("yy-MM-dd")
-                                          + ".log";
+            var filePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             var loggerConfig = new LoggerConfiguration()
-                .WriteTo.Async(sinkConfiguration =>
-                    sinkConfiguration.File(filePath));
+                .WriteTo
+                .Async(sinkConfiguration => sinkConfiguration.RollingFile(filePath+"/Logs/{Date}.log"));
             if(cnf.LogInConsole)
                 loggerConfig = loggerConfig.WriteTo.Async(sinkConfiguration => sinkConfiguration.Console());
 
