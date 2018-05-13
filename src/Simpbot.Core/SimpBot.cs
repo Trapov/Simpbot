@@ -59,6 +59,7 @@ namespace Simpbot.Core
                 .AddScoped<ICustomLogger, CustomLogger>()
                 .AddScoped<LoggerAdapter>()
                 .AddDbContext<StorageContext>(ServiceLifetime.Transient)
+                .AddMemoryCache()
                 .AddLogging(builder => builder.AddSerilog(dispose:true))
                 .BuildServiceProvider();
 

@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 
 using Microsoft.EntityFrameworkCore;
+
 using Simpbot.Core.Persistence;
 using Simpbot.Core.Persistence.Entity;
 
