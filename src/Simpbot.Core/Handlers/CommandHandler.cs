@@ -29,16 +29,17 @@ namespace Simpbot.Core.Handlers
 
         public async Task HandleCommand(SocketMessage messageParam)
         {
-            // Don't process the command if it was a System Message
+            // Don't process the command if it was a System Message or it was not a text channel
+
             if (!(messageParam is SocketUserMessage message)) return;
+            if(!(messageParam.Channel is ITextChannel channel)) return;
 
             // Create a number to track where the prefix ends and the command begins
             var argPos = 0;
             using (var storageContext = _serviceProvider.GetService<StorageContext>())
             {
                 // MUTED FEATURE
-                if (messageParam.Channel is ITextChannel channel &&
-                    storageContext.Muteds.Any(muted => muted.UserId.Equals(messageParam.Author.Id) && muted.IsMuted))
+                if (storageContext.Muteds.Any(muted => muted.UserId.Equals(messageParam.Author.Id) && muted.IsMuted))
                 {
                     await channel.DeleteMessagesAsync(new[] { messageParam.Id });
                     return;
@@ -67,6 +68,14 @@ namespace Simpbot.Core.Handlers
                 if (!result.IsSuccess)
                     await context.Channel.SendMessageAsync(result.ErrorReason);
             }
+        }
+
+        public async Task UpdatedTask(Cacheable<IMessage, ulong> cacheable, SocketMessage socketMessage,
+            ISocketMessageChannel channel)
+        {
+            if (socketMessage == null) return;
+
+            await HandleCommand(socketMessage);
         }
     }
 }

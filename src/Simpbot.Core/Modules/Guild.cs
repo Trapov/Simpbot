@@ -60,32 +60,37 @@ namespace Simpbot.Core.Modules
         [Command("prune", RunMode = RunMode.Async), Priority(0)]
         public async Task PruneAsync(IUser user, byte howMany)
         {
-            if (howMany++ > 100 || howMany == 0) await ReplyAsync("Can't be bigger than 100 or smaller zero");
-            if (Context.Channel is ITextChannel channel)
+            if (howMany++ > 100 || howMany == 0)
             {
-                var messages =
-                    (await channel.GetMessagesAsync().FlattenAsync())
-                    .Where(message => message.Author.Id.Equals(user.Id) || message.Id.Equals(Context.Message.Id))
-                    .Take(howMany)
-                    .ToList();
-                await channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
+                await ReplyAsync("Can't be bigger than 100 or smaller zero").ConfigureAwait(false);
+                return;
             }
+
+            var messages =
+                (await Context.Channel.GetMessagesAsync().FlattenAsync())
+                .Where(message => message.Author.Id.Equals(user.Id) || message.Id.Equals(Context.Message.Id))
+                .Take(howMany)
+                .ToList();
+            await ((ITextChannel) Context.Channel).DeleteMessagesAsync(messages).ConfigureAwait(false);
         }
 
         [Command("prune", RunMode = RunMode.Async), Priority(1)]
         public async Task PruneAsync(byte howMany)
         {
-            if (howMany++ > 100 || howMany == 0) await ReplyAsync("Can't be bigger than 100 or smaller zero").ConfigureAwait(false); ;
-            if (Context.Channel is ITextChannel channel)
+            if (howMany++ > 100 || howMany == 0)
             {
-                var messages =
-                    (await channel.GetMessagesAsync()
-                        .FlattenAsync())
-                    .Take(howMany)
-                    .ToList();
-
-                await channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
+                await ReplyAsync("Can't be bigger than 100 or smaller zero").ConfigureAwait(false);
+                return;
             }
+
+            var messages =
+                (await Context.Channel.GetMessagesAsync()
+                    .FlattenAsync())
+                .Take(howMany)
+                .ToList();
+
+            await ((ITextChannel) Context.Channel).DeleteMessagesAsync(messages).ConfigureAwait(false);
+
         }
     }
 }

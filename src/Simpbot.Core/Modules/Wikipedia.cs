@@ -22,7 +22,7 @@ namespace Simpbot.Core.Modules
 
         [Command("wiki", RunMode = RunMode.Async), Summary("Gets a wiki page")]
         public async Task GetWikiPage([Remainder] string query)
-        {            
+        {
             var cachedResult = _memoryCache.Get<Embed>(query);
             if (cachedResult != null)
             {
