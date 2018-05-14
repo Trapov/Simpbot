@@ -6,7 +6,6 @@ using Discord;
 using Discord.Commands;
 
 using Microsoft.Extensions.Caching.Memory;
-using Simpbot.Core.Attributes;
 using Simpbot.Core.Dto;
 using Simpbot.Service.Search;
 
@@ -23,7 +22,7 @@ namespace Simpbot.Core.Modules
             _cacheService = cacheService;
         }
 
-        [Command("im", RunMode = RunMode.Async), Alias("im2", "image"), Summary("Searches for an image"), Updateable]
+        [Command("im", RunMode = RunMode.Async), Alias("im2", "image"), Summary("Searches for an image")]
         public async Task SearchForImage([Remainder] string query)
         {
             if(await CheckAndReturnFromCache(query).ConfigureAwait(false))
@@ -55,7 +54,7 @@ namespace Simpbot.Core.Modules
 
         }
 
-        [Command("gif", RunMode = RunMode.Async), Summary("Searches for a gif"), Updateable]
+        [Command("gif", RunMode = RunMode.Async), Summary("Searches for a gif")]
         public async Task SearchForGif([Remainder] string query)
         {
             if (await CheckAndReturnFromCache(query).ConfigureAwait(false))
@@ -86,7 +85,7 @@ namespace Simpbot.Core.Modules
             // LINK FEATURE
         }
 
-        [Command("google", RunMode = RunMode.Async), Summary("Searches for a query"), Updateable]
+        [Command("google", RunMode = RunMode.Async), Summary("Searches for a query")]
         public async Task SearchForTexts([Remainder] string query)
         {
             if (await CheckAndReturnFromCache(query).ConfigureAwait(false))

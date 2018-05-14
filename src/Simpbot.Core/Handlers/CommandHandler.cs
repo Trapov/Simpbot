@@ -61,12 +61,7 @@ namespace Simpbot.Core.Handlers
                 // Create a Command Context
                 var context = new CommandContext(_discordClient, message);
 
-
-                // Execute the command. (result does not indicate a return value, 
-                // rather an object stating if the command executed successfully)
-                var result = await _commandService.ExecuteAsync(context, argPos, _serviceProvider);
-                if (!result.IsSuccess)
-                    await context.Channel.SendMessageAsync(result.ErrorReason);
+                await _commandService.ExecuteAsync(context, argPos, _serviceProvider);
             }
         }
 
