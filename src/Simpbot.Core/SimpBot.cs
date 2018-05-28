@@ -56,9 +56,9 @@ namespace Simpbot.Core
                 .AddScoped<IWeatherService, WeatherService>()
                 .AddScoped<IWikipediaService, WikipediaService>()
                 .AddScoped<ISearchService, SearchService>()
-                .AddScoped<ICustomLogger, CustomLogger>()
                 .AddScoped<LoggerAdapter>()
                 .AddDbContext<StorageContext>(ServiceLifetime.Transient)
+                .AddSingleton<PrunedMessagesInMemoryService>()
                 .AddMemoryCache()
                 .AddLogging(builder => builder.AddSerilog(dispose:true))
                 .BuildServiceProvider();
@@ -171,7 +171,5 @@ namespace Simpbot.Core
         }
 
         #endregion
-
-
     }
 }

@@ -35,7 +35,6 @@ namespace Simpbot.Core.Handlers
             if(!(messageParam.Channel is ITextChannel channel)) return;
 
             // Create a number to track where the prefix ends and the command begins
-            var argPos = 0;
             using (var storageContext = _serviceProvider.GetService<StorageContext>())
             {
                 // MUTED FEATURE
@@ -53,6 +52,7 @@ namespace Simpbot.Core.Handlers
                     (await storageContext.Prefixes.FirstOrDefaultAsync(prefix => prefix.GuildId.Equals(guildId)))?.PrefixSymbol ??
                     Prefix.GetDefaultSymbol();
 
+                var argPos = 0;
                 if (
                     !(message.HasCharPrefix(foundPrefix, ref argPos) ||
                       message.HasMentionPrefix(_discordClient.CurrentUser, ref argPos))
