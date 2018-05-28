@@ -56,9 +56,10 @@ namespace Simpbot.Core
                 .AddScoped<IWeatherService, WeatherService>()
                 .AddScoped<IWikipediaService, WikipediaService>()
                 .AddScoped<ISearchService, SearchService>()
-                .AddScoped<ICustomLogger, CustomLogger>()
                 .AddScoped<LoggerAdapter>()
                 .AddDbContext<StorageContext>(ServiceLifetime.Transient)
+                .AddSingleton<PrunedMessagesInMemoryService>()
+                .AddMemoryCache()
                 .AddLogging(builder => builder.AddSerilog(dispose:true))
                 .BuildServiceProvider();
 
@@ -74,6 +75,7 @@ namespace Simpbot.Core
 
         public async Task StartAsync()
         {
+            var commandHandler = new CommandHandler(_serviceProvider, _discordClient, _commandService);
             await Observable.Merge(
 
                 Observable
@@ -91,7 +93,17 @@ namespace Simpbot.Core
                         h => _discordClient.MessageReceived += h,
                         h => _discordClient.MessageReceived -= h
                     )
-                    .SubscribeAsyncChain(new CommandHandler(_serviceProvider, _discordClient, _commandService).HandleCommand)
+                    .SubscribeAsyncChain(commandHandler.HandleCommand)
+                    .Select(_ => Unit.Default),
+                Observable
+                    .FromEvent<Func<Cacheable<IMessage, ulong>, SocketMessage, ISocketMessageChannel, Task>, (
+                        Cacheable<IMessage, ulong>, SocketMessage, ISocketMessageChannel)>(
+                        conversion => ((cacheable, message, chanell) =>
+                            Task.Run(() => conversion.Invoke((cacheable, message, chanell)))),
+                        h => _discordClient.MessageUpdated += h,
+                        h => _discordClient.MessageUpdated -= h
+                    )
+                    .SubscribeAsyncChain(tuple => commandHandler.UpdatedTask(tuple.Item1, tuple.Item2, tuple.Item3))
                     .Select(_ => Unit.Default),
                 Observable.FromEvent<Func<Task>, Task>(
                         conversion => (() => Task.Run(() => conversion.Invoke(Task.CompletedTask))),
@@ -130,9 +142,9 @@ namespace Simpbot.Core
             });
         }
 
-        public Task SendMessage(Message message, ulong channelId)
+        public Task SendMessage(string text, ulong channelId)
         {
-            return InternalSendMessage(message, channelId);
+            return InternalSendMessage(text, channelId);
         }
 
         #endregion
@@ -148,18 +160,16 @@ namespace Simpbot.Core
 
         #region Helpers
 
-        private async Task InternalSendMessage(Message message, ulong channelId)
+        private async Task InternalSendMessage(string message, ulong channelId)
         {
             var channel = _discordClient
                               .GetGuild(channelId)
                               .TextChannels
                               .FirstOrDefault(textChannel => textChannel.Name.Contains("general")) ??
                           throw new SimpbotException("Can't get a channel");
-            var result = await channel.SendMessageAsync(message.Text);
+            var result = await channel.SendMessageAsync(message);
         }
 
         #endregion
-
-
     }
 }

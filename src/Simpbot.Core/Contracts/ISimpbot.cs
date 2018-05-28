@@ -13,7 +13,7 @@ namespace Simpbot.Core.Contracts
         /// <param name="message">a text message</param>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        Task SendMessage(Message message, ulong channelId);
+        Task SendMessage(string message, ulong channelId);
 
         /// <summary>
         /// Starts to listening for messages
