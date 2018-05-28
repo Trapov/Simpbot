@@ -124,13 +124,31 @@ namespace Simpbot.Core.Modules
         }
 
         [Command("quote"), Priority(1)]
-        public async Task ChangeTopicAsync()
+        public async Task QuoteAsync()
         {
             var lastMessage =
                 (await Context.Channel.GetMessagesAsync()
                     .FlattenAsync())
                 .Take(2).Last();
-            
+
+            await _guildContext.Quotes.AddAsync(new Quote
+            {
+                Message = lastMessage.Content,
+                GuildId = lastMessage.Channel.Id,
+                MessageId = lastMessage.Id,
+                UserId = lastMessage.Author.Id,
+                DateTime = lastMessage.Timestamp
+            });
+
+            await _guildContext.SaveChangesAsync();
+            await ReplyAsync(Context.User.Mention + ", done!");
+        }
+
+        [Command("quote"), Priority(0)]
+        public async Task QuoteAsync(ulong messageId)
+        {
+            var lastMessage =
+                await Context.Channel.GetMessageAsync(messageId);
 
             await _guildContext.Quotes.AddAsync(new Quote
             {
