@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Simpbot.Core.Persistence;
 using Simpbot.Core.Persistence.Entity;
+using Simpbot.Service.Search.Contracts;
 
 namespace Simpbot.Core.Modules
 {
@@ -120,6 +121,73 @@ namespace Simpbot.Core.Modules
         {
             var channel = Context.Channel as SocketTextChannel;
             return channel?.ModifyAsync(properties => properties.Topic = topic);
+        }
+
+        [Command("quote"), Priority(1)]
+        public async Task ChangeTopicAsync()
+        {
+            var lastMessage =
+                (await Context.Channel.GetMessagesAsync()
+                    .FlattenAsync())
+                .Take(2).Last();
+            
+
+            await _guildContext.Quotes.AddAsync(new Quote
+            {
+                Message = lastMessage.Content,
+                GuildId = lastMessage.Channel.Id,
+                MessageId = lastMessage.Id,
+                UserId = lastMessage.Author.Id,
+                DateTime = lastMessage.Timestamp
+            });
+
+            await _guildContext.SaveChangesAsync();
+            await ReplyAsync(Context.User.Mention + ", done!");
+        }
+
+        [Command("quote-get"), Priority(1)]
+        public async Task SaveQuoteAsync(IUser user)
+        {
+            var result = await _guildContext.Quotes.Where(quote => quote.UserId == user.Id).LastAsync();
+
+            var embed = new EmbedBuilder()
+                .WithAuthor(user)
+                .WithTimestamp(result.DateTime)
+                .AddField("Quote", result.Message);
+
+            await ReplyAsync(Context.User.Mention + ", done!", false, embed.Build());
+        }
+
+        [Command("quote-get"), Priority(0)]
+        public async Task SaveQuoteAsync(IUser user, byte whatQuote)
+        {
+            var result = _guildContext.Quotes.Where(quote => quote.UserId == user.Id);
+
+            var howMany = result.Count();
+
+            var rslt = result.ToArrayAsync().GetAwaiter().GetResult().ElementAtOrDefault(whatQuote >= howMany ? howMany - 1 : whatQuote);
+
+            var embed = new EmbedBuilder()
+                .WithAuthor(user)
+                .WithTimestamp(rslt.DateTime)
+                .AddField("Quote", rslt.Message);
+
+            await ReplyAsync(Context.User.Mention + ", done!", false, embed.Build());
+        }
+
+        [Command("quote-remove"), Priority(0)]
+        public async Task RemoveQuoteAsync(IUser user, byte whatQuote)
+        {
+            var result = _guildContext.Quotes.Where(quote => quote.UserId == user.Id);
+
+            var howMany = result.Count();
+
+            var rslt = result.ToArrayAsync().GetAwaiter().GetResult().ElementAtOrDefault(whatQuote >= howMany ? howMany - 1 : whatQuote);
+
+            _guildContext.Quotes.Remove(rslt);
+            await _guildContext.SaveChangesAsync();
+
+            await ReplyAsync(Context.User.Mention + ", done!");
         }
     }
 }

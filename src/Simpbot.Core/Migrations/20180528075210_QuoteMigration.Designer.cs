@@ -11,9 +11,10 @@ using System;
 namespace Simpbot.Core.Migrations
 {
     [DbContext(typeof(StorageContext))]
-    partial class PrefixContextModelSnapshot : ModelSnapshot
+    [Migration("20180528075210_QuoteMigration")]
+    partial class QuoteMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

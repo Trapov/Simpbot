@@ -10,6 +10,7 @@ namespace Simpbot.Core.Persistence
     {
         public DbSet<Muted> Muteds { get; set; }
         public DbSet<Prefix> Prefixes { get; set; }
+        public DbSet<Quote> Quotes { get; set; }
 
 
         public async Task MigrateAsync() => await Database.MigrateAsync();
@@ -23,7 +24,17 @@ namespace Simpbot.Core.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Muted>().HasKey(muted => new {muted.GuildId, muted.UserId});
+            modelBuilder
+                .Entity<Muted>()
+                .HasKey(muted => new {muted.GuildId, muted.UserId});
+            modelBuilder.Entity<Quote>()
+                .HasKey(quote => new {quote.MessageId, quote.GuildId});
+
+            modelBuilder.Entity<Muted>()
+                .HasIndex(muted => muted.UserId);
+            modelBuilder.Entity<Quote>()
+                .HasIndex(quote => new { quote.MessageId, quote.GuildId, quote.UserId})
+                .IsUnique();
         }
 
         #endregion
