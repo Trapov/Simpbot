@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0B955370-10EE-4991-8F12-6B9FB77AD92C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Core.Test", "test\Simpbot.Core.Test\Simpbot.Core.Test.csproj", "{E0B22B6D-3A29-449B-911D-A70D1658AEFA}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C9802308-4853-4D34-92BC-B85817D7B863}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Core", "src\Simpbot.Core\Simpbot.Core.csproj", "{FE5BB54E-C919-4F52-B98C-1D05B3F0D5E3}"
@@ -18,13 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Service.Weather", "src\Simpbot.Service.Weather\Simpbot.Service.Weather.csproj", "{081DE460-548B-4B50-B4DF-1CF18FD80DAD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Service.Weather.Test", "test\Simpbot.Service.Weather.Test\Simpbot.Service.Weather.Test.csproj", "{20C76F0E-9868-405C-9943-61D186149945}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Cli", "src\Simpbot.Cli\Simpbot.Cli.csproj", "{CA642440-0647-4C6E-B767-56B20F15502A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Service.Search", "src\Simpbot.Service.Search\Simpbot.Service.Search.csproj", "{D87DC25B-1F46-467C-A660-68D91F26CF28}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Service.Search.Test", "test\Simpbot.Service.Search.Test\Simpbot.Service.Search.Test.csproj", "{6BE1F9CE-9F8A-4100-A1A2-1D03C254E35A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpbot.Service.Wikipedia", "src\Simpbot.Service.Wikipedia\Simpbot.Service.Wikipedia.csproj", "{2FDC576F-F0AD-49F9-AF95-841667E78E15}"
 EndProject
@@ -267,13 +260,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E0B22B6D-3A29-449B-911D-A70D1658AEFA} = {0B955370-10EE-4991-8F12-6B9FB77AD92C}
 		{FE5BB54E-C919-4F52-B98C-1D05B3F0D5E3} = {C9802308-4853-4D34-92BC-B85817D7B863}
 		{081DE460-548B-4B50-B4DF-1CF18FD80DAD} = {C9802308-4853-4D34-92BC-B85817D7B863}
-		{20C76F0E-9868-405C-9943-61D186149945} = {0B955370-10EE-4991-8F12-6B9FB77AD92C}
 		{CA642440-0647-4C6E-B767-56B20F15502A} = {C9802308-4853-4D34-92BC-B85817D7B863}
 		{D87DC25B-1F46-467C-A660-68D91F26CF28} = {C9802308-4853-4D34-92BC-B85817D7B863}
-		{6BE1F9CE-9F8A-4100-A1A2-1D03C254E35A} = {0B955370-10EE-4991-8F12-6B9FB77AD92C}
 		{2FDC576F-F0AD-49F9-AF95-841667E78E15} = {C9802308-4853-4D34-92BC-B85817D7B863}
 		{6EAFE242-60EA-43C3-A2E1-66344E76A15D} = {C9802308-4853-4D34-92BC-B85817D7B863}
 	EndGlobalSection

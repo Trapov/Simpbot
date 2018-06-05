@@ -142,11 +142,6 @@ namespace Simpbot.Core
             });
         }
 
-        public Task SendMessage(string text, ulong channelId)
-        {
-            return InternalSendMessage(text, channelId);
-        }
-
         #endregion
 
         #region Implementation of IDisposable
@@ -154,20 +149,6 @@ namespace Simpbot.Core
         public void Dispose()
         {
             _discordClient?.Dispose();
-        }
-
-        #endregion
-
-        #region Helpers
-
-        private async Task InternalSendMessage(string message, ulong channelId)
-        {
-            var channel = _discordClient
-                              .GetGuild(channelId)
-                              .TextChannels
-                              .FirstOrDefault(textChannel => textChannel.Name.Contains("general")) ??
-                          throw new SimpbotException("Can't get a channel");
-            var result = await channel.SendMessageAsync(message);
         }
 
         #endregion
